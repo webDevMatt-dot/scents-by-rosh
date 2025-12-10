@@ -3,6 +3,7 @@
 import React from "react";
 import { Product } from "../data/products";
 import Link from "next/link";
+import Image from "next/image"; // Import Image
 import { useCart } from "../context/CartContext";
 
 type Props = {
@@ -13,8 +14,8 @@ export default function ProductCard({ product }: Props) {
   const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to the product page
-    e.stopPropagation(); // Stop the click from bubbling up
+    e.preventDefault();
+    e.stopPropagation();
     addToCart(product);
   };
 
@@ -22,40 +23,50 @@ export default function ProductCard({ product }: Props) {
     <div className="group relative">
       <Link href={`/product/${product.id}`} className="block">
         {/* Card Container */}
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#1a1a1a] to-[#050505] border border-white/5 shadow-2xl transition-all duration-500 hover:shadow-[#c9a449]/20">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2rem] bg-[#050505] border border-white/5 shadow-2xl transition-all duration-500 hover:shadow-[#c9a449]/20">
           
-          {/* 1. Base Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-0" />
+          {/* --- 1. PRODUCT IMAGE (New Code) --- */}
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            // Fallback: Show the Letter if no image exists
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#1a1a1a] to-[#050505]">
+               <span className="font-serif text-9xl text-[#3d3116] select-none group-hover:scale-110 transition-transform duration-700 ease-out group-hover:text-[#5c4a21]">
+                 {product.initial}
+               </span>
+            </div>
+          )}
 
-          {/* 2. Golden Hue Hover Effect */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#c9a449] via-transparent to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-700 z-0" />
+          {/* --- 2. GRADIENT OVERLAYS (For readability) --- */}
+          {/* Dark gradient at bottom so white text pops */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
 
+          {/* Golden Hue Hover Effect */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#c9a449] via-transparent to-transparent opacity-0 group-hover:opacity-40 transition-opacity duration-700 z-10" />
+
+          {/* --- 3. FLOATING CONTENT (z-20) --- */}
+          
           {/* Tag */}
-          <div className="absolute top-5 left-5 z-10">
-            <span className="inline-block rounded-full border border-[#c9a449]/40 bg-black/30 px-3 py-1 text-[10px] font-bold tracking-[0.2em] text-[#c9a449] backdrop-blur-md uppercase">
+          <div className="absolute top-5 left-5 z-20">
+            <span className="inline-block rounded-full border border-[#c9a449]/40 bg-black/60 px-3 py-1 text-[10px] font-bold tracking-[0.2em] text-[#c9a449] backdrop-blur-md uppercase">
               {product.category === "for-her" ? "For Her" : product.category === "for-him" ? "For Him" : "Unisex"}
             </span>
           </div>
 
-          {/* Center Letter */}
-          <div className="relative z-10 flex h-full w-full items-center justify-center">
-             <span className="font-serif text-9xl text-[#3d3116] select-none group-hover:scale-110 transition-transform duration-700 ease-out group-hover:text-[#5c4a21]">
-               {product.initial}
-             </span>
-          </div>
-
-          {/* ADD TO CART BUTTON (FIXED FOR MOBILE) */}
+          {/* ADD TO CART BUTTON */}
           <button 
             onClick={handleAddToCart}
             aria-label="Add to cart"
             className="
               absolute bottom-5 right-5 z-20 flex h-10 w-10 items-center justify-center rounded-full 
               bg-[#c9a449] text-black shadow-lg shadow-black/50 active:scale-90 transition-all duration-300 hover:bg-[#ffe082]
-              
-              /* Mobile: Always visible */
               opacity-100 translate-y-0
-              
-              /* Desktop: Hidden until hover */
               md:opacity-0 md:translate-y-4 
               md:group-hover:translate-y-0 md:group-hover:opacity-100
             "
@@ -68,7 +79,7 @@ export default function ProductCard({ product }: Props) {
           </button>
         </div>
 
-        {/* Details */}
+        {/* Details Text */}
         <div className="mt-5 space-y-1 px-1">
           <h3 className="text-lg font-semibold text-white tracking-wide group-hover:text-[#c9a449] transition-colors">
             {product.name}
