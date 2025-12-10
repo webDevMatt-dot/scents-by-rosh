@@ -1,25 +1,37 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
+import { client } from "@/app/lib/sanity"; // Import Sanity Client
 
 export default function Home() {
-  // Filter specific products to match your "Bestsellers" screenshot
-  const bestsellers = products.filter((p) =>
-    ["bella", "rosh-bloom", "dubai-nights", "velvet-rose"].includes(p.id)
-  );
+  const [bestsellers, setBestsellers] = useState<any[]>([]);
+
+  // Fetch Bestsellers from Sanity
+  useEffect(() => {
+    async function fetchBestsellers() {
+      // Fetch 4 items. You can filter by specific names if you want.
+      const data = await client.fetch(`*[_type == "product"][0...4] {
+        _id,
+        name,
+        inspiredBy,
+        price,
+        category,
+        initial,
+        image
+      }`);
+      setBestsellers(data);
+    }
+    fetchBestsellers();
+  }, []);
 
   return (
     <div className="bg-black min-h-screen flex flex-col font-sans selection:bg-[#c9a449] selection:text-black">
       
       {/* --- HERO SECTION --- */}
-      {/* Changed h-screen to h-[100dvh] for better mobile browser support */}
       <section className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
-        
-        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/hero-bg.png" 
@@ -31,10 +43,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black z-10" />
         </div>
 
-        {/* Hero Content */}
-        {/* Added px-4 for safety on small screens */}
         <div className="relative z-20 text-center px-4 md:px-6 max-w-5xl mx-auto mt-[-50px]">
-          
           <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 animate-fade-in">
             <span className="text-[#c9a449] text-sm md:text-lg">✧</span>
             <p className="text-[#c9a449] tracking-[0.25em] text-[10px] md:text-sm font-bold uppercase">
@@ -43,7 +52,6 @@ export default function Home() {
             <span className="text-[#c9a449] text-sm md:text-lg">✧</span>
           </div>
 
-          {/* Responsive Text Sizes: text-4xl on mobile -> text-8xl on desktop */}
           <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif text-white mb-6 leading-[1.1] animate-fade-in-up">
             Inspired Luxury. <br />
             <span className="text-[#c9a449]">Designed for You.</span>
@@ -70,8 +78,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* --- SCROLL INDICATOR --- */}
-        {/* Adjusted bottom position for mobile safety */}
         <div className="absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-80">
           <div className="w-[30px] h-[50px] rounded-full border-2 border-[#c9a449]/50 flex justify-center p-2">
             <div className="w-1.5 h-1.5 bg-[#c9a449] rounded-full animate-scroll-down" />
@@ -81,7 +87,6 @@ export default function Home() {
 
       {/* --- BESTSELLERS SECTION --- */}
       <FadeInSection>
-        {/* Reduced padding on mobile (py-16) vs desktop (py-24) */}
         <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-16">
             <p className="text-[#c9a449] text-xs tracking-[0.3em] uppercase mb-3">
@@ -97,7 +102,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {bestsellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product._id} 
+                product={{
+                  id: product._id, // Map Sanity _id to id
+                  ...product
+                }} 
+              />
             ))}
           </div>
 
@@ -122,14 +133,12 @@ export default function Home() {
               </h2>
             </div>
 
-            {/* Grid for Collections */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[600px]">
               
-              {/* For Her - Reduced height on mobile (h-[400px]) */}
+              {/* For Her */}
               <Link href="/women/for-her" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
                  <Image src="/images/for-her-bg.jpg" alt="Women" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                 
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Elegant & Empowering</p>
                    <h3 className="text-3xl font-serif text-white mb-4">FOR HER</h3>
@@ -141,7 +150,6 @@ export default function Home() {
               <Link href="/men/for-him" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
                  <Image src="/images/for-him-bg.jpg" alt="Men" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                 
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Bold & Refined</p>
                    <h3 className="text-3xl font-serif text-white mb-4">FOR HIM</h3>
@@ -153,7 +161,6 @@ export default function Home() {
               <Link href="/unisex/for-us" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
                  <Image src="/images/unisex-bg.jpg" alt="Unisex" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
-                 
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Timeless & Universal</p>
                    <h3 className="text-3xl font-serif text-white mb-4">UNISEX</h3>
