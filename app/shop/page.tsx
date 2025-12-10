@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import ProductCard from "@/app/components/ProductCard";
 import { getProducts } from "@/app/lib/sanity"; 
 
+// Updated Type Definition
 type SanityProduct = {
   _id: string;
   name: string;
@@ -11,13 +12,15 @@ type SanityProduct = {
   price: number;
   category: "for-her" | "for-him" | "unisex";
   initial: string;
-  image: string;
+  image: any; // Now an object, not a string
 };
 
+// ... (Keep FilterOption and SortOption types same as before) ...
 type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 type FilterOption = "all" | "for-her" | "for-him" | "unisex";
 
 export default function ShopPage() {
+  // ... (Keep all your state and useEffect logic exactly the same) ...
   const [products, setProducts] = useState<SanityProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterOption>("all");
@@ -46,6 +49,7 @@ export default function ShopPage() {
     return items;
   }, [filter, sort, products]);
 
+  // ... (Keep Loading state return) ...
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white">
@@ -56,6 +60,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-black text-white pt-10 pb-20">
+      {/* ... (Keep Header and Controls sections same as before) ... */}
       <div className="text-center mb-12 px-6">
         <p className="text-[#c9a449] text-xs md:text-sm tracking-[0.3em] uppercase font-medium mb-3">COLLECTION</p>
         <h1 className="text-5xl md:text-6xl font-serif text-white tracking-wide">ALL FRAGRANCES</h1>
@@ -89,7 +94,7 @@ export default function ShopPage() {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredProducts.map((p) => (
+          {filteredProducts.map((p, index) => (
             <ProductCard 
               key={p._id} 
               product={{
@@ -101,6 +106,8 @@ export default function ShopPage() {
                 inspiredBy: p.inspiredBy,
                 image: p.image 
               }} 
+              // PASS PRIORITY to the first 4 items so they load instantly
+              priority={index < 4}
             />
           ))}
         </div>
