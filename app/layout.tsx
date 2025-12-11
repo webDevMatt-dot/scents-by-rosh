@@ -15,7 +15,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-black text-white min-h-screen">
-        {/* Removed StoreProvider since we skipped the dashboard */}
         <CartProvider>
           <Navbar />
           <CartSidebar />
