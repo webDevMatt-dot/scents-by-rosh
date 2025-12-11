@@ -117,8 +117,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Call Us</p>
-                  <p className="text-white">+1 (555) 123-4567</p>
-                  <p className="text-gray-500 text-xs mt-1">Mon-Fri: 9am - 6pm EST</p>
+                  <p className="text-white">+27 71 613 4107</p>
+                  <p className="text-gray-500 text-xs mt-1">Mon-Fri: 9am - 6pm</p>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Our Studio</p>
-                  <p className="text-white">123 Luxury Ave, Suite 400<br/>New York, NY 10012</p>
+                  <p className="text-white">123 Luxury Ave, Suite 400<br/>Johannesburg, South Africa</p>
                 </div>
               </div>
             </div>
