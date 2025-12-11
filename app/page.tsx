@@ -4,27 +4,26 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductCard from "@/app/components/ProductCard";
-import { client } from "@/app/lib/sanity"; // Import Sanity Client
+import { client, urlFor } from "@/app/lib/sanity"; // Import urlFor
 
 export default function Home() {
   const [bestsellers, setBestsellers] = useState<any[]>([]);
+  const [images, setImages] = useState<any>(null); // State for site images
 
-  // Fetch Bestsellers from Sanity
+  // Fetch Data
   useEffect(() => {
-    async function fetchBestsellers() {
-      // Fetch 4 items. You can filter by specific names if you want.
-      const data = await client.fetch(`*[_type == "product"][0...4] {
-        _id,
-        name,
-        inspiredBy,
-        price,
-        category,
-        initial,
-        image
+    async function fetchData() {
+      // 1. Fetch Bestsellers
+      const productsData = await client.fetch(`*[_type == "product"][0...4] {
+        _id, name, inspiredBy, price, category, initial, image
       }`);
-      setBestsellers(data);
+      setBestsellers(productsData);
+
+      // 2. Fetch Site Images (We grab the first document of type 'siteContent')
+      const siteData = await client.fetch(`*[_type == "siteContent"][0]`);
+      setImages(siteData);
     }
-    fetchBestsellers();
+    fetchData();
   }, []);
 
   return (
@@ -33,16 +32,22 @@ export default function Home() {
       {/* --- HERO SECTION --- */}
       <section className="relative h-[100dvh] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/hero-bg.png" 
-            alt="Luxury Perfume"
-            fill
-            className="object-cover opacity-60"
-            priority
-          />
+          {images?.heroImage ? (
+             <Image
+              src={urlFor(images.heroImage).width(1920).url()} 
+              alt="Luxury Perfume"
+              fill
+              className="object-cover opacity-60"
+              priority
+            />
+          ) : (
+             // Fallback while loading or if not set
+             <div className="w-full h-full bg-[#111]" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black z-10" />
         </div>
 
+        {/* ... (Keep your Hero Text content exactly the same) ... */}
         <div className="relative z-20 text-center px-4 md:px-6 max-w-5xl mx-auto mt-[-50px]">
           <div className="flex items-center justify-center gap-3 mb-4 md:mb-6 animate-fade-in">
             <span className="text-[#c9a449] text-sm md:text-lg">✧</span>
@@ -85,33 +90,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- BESTSELLERS SECTION --- */}
+      {/* --- BESTSELLERS SECTION (Keep exactly the same) --- */}
       <FadeInSection>
         <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
-          <div className="text-center mb-12 md:mb-16">
-            <p className="text-[#c9a449] text-xs tracking-[0.3em] uppercase mb-3">
-              Most Wanted
-            </p>
-            <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">
-              Bestselling Fragrances
-            </h2>
-            <p className="text-gray-500 text-sm max-w-md mx-auto">
-              Our most coveted scents, inspired by the world's finest perfumeries
-            </p>
+          {/* ... (Keep existing Bestseller code) ... */}
+           <div className="text-center mb-12 md:mb-16">
+            <p className="text-[#c9a449] text-xs tracking-[0.3em] uppercase mb-3">Most Wanted</p>
+            <h2 className="text-3xl md:text-5xl font-serif text-white mb-4">Bestselling Fragrances</h2>
+            <p className="text-gray-500 text-sm max-w-md mx-auto">Our most coveted scents, inspired by the world's finest perfumeries</p>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {bestsellers.map((product) => (
-              <ProductCard 
-                key={product._id} 
-                product={{
-                  id: product._id, // Map Sanity _id to id
-                  ...product
-                }} 
-              />
+              <ProductCard key={product._id} product={{ id: product._id, ...product }} />
             ))}
           </div>
-
           <div className="text-center mt-12">
             <Link href="/shop" className="text-[#c9a449] text-xs tracking-widest font-bold hover:text-white transition-colors border-b border-[#c9a449] pb-1">
               VIEW ALL FRAGRANCES →
@@ -125,19 +117,20 @@ export default function Home() {
         <section className="py-16 md:py-20 px-6 bg-[#050505]">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12 md:mb-16">
-              <p className="text-[#c9a449] text-xs tracking-[0.3em] uppercase mb-3">
-                Collections
-              </p>
-              <h2 className="text-3xl md:text-5xl font-serif text-white">
-                Find Your Signature
-              </h2>
+              <p className="text-[#c9a449] text-xs tracking-[0.3em] uppercase mb-3">Collections</p>
+              <h2 className="text-3xl md:text-5xl font-serif text-white">Find Your Signature</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[600px]">
               
               {/* For Her */}
               <Link href="/women/for-her" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
-                 <Image src="/images/for-her-bg.jpg" alt="Women" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
+                 {images?.forHerImage && (
+                   <Image 
+                    src={urlFor(images.forHerImage).width(600).url()} 
+                    alt="Women" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" 
+                   />
+                 )}
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Elegant & Empowering</p>
@@ -148,7 +141,12 @@ export default function Home() {
 
               {/* For Him */}
               <Link href="/men/for-him" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
-                 <Image src="/images/for-him-bg.jpg" alt="Men" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
+                 {images?.forHimImage && (
+                   <Image 
+                    src={urlFor(images.forHimImage).width(600).url()} 
+                    alt="Men" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" 
+                   />
+                 )}
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Bold & Refined</p>
@@ -159,7 +157,12 @@ export default function Home() {
 
               {/* Unisex */}
               <Link href="/unisex/for-us" className="group relative h-[400px] md:h-full overflow-hidden rounded-sm">
-                 <Image src="/images/unisex-bg.jpg" alt="Unisex" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" />
+                 {images?.unisexImage && (
+                   <Image 
+                    src={urlFor(images.unisexImage).width(600).url()} 
+                    alt="Unisex" fill className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-50" 
+                   />
+                 )}
                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
                  <div className="absolute bottom-10 left-8 z-10">
                    <p className="text-[#c9a449] text-[10px] tracking-widest uppercase mb-2">Timeless & Universal</p>
